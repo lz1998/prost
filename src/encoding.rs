@@ -11,7 +11,6 @@ use alloc::vec::Vec;
 use core::cmp::min;
 use core::convert::TryFrom;
 use core::mem;
-use core::str;
 use core::u32;
 use core::usize;
 
@@ -844,16 +843,8 @@ pub mod string {
 
             let drop_guard = DropGuard(value.as_mut_vec());
             bytes::merge(wire_type, drop_guard.0, buf, ctx)?;
-            match str::from_utf8(drop_guard.0) {
-                Ok(_) => {
-                    // Success; do not clear the bytes.
-                    mem::forget(drop_guard);
-                    Ok(())
-                }
-                Err(_) => Err(DecodeError::new(
-                    "invalid string value: data is not UTF-8 encoded",
-                )),
-            }
+            mem::forget(drop_guard);
+            Ok(())
         }
     }
 
